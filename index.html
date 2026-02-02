@@ -143,6 +143,42 @@
             display: flex;
         }
 
+        .plan-screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .plan-screen.active {
+            display: flex;
+        }
+
+        .execute-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            text-align: center;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .execute-screen.active {
+            display: flex;
+        }
+
+        .actual-screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .actual-screen.active {
+            display: flex;
+        }
+
         .header {
             margin-bottom: 40px;
             padding-bottom: 20px;
@@ -236,6 +272,98 @@
             border: 2px solid var(--border);
             padding: 16px;
             font-size: 32px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        /* Plan Entry - showing all sets at once */
+        .plan-sets-container {
+            margin-bottom: 32px;
+        }
+
+        .set-plan-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .set-label {
+            font-size: 16px;
+            color: var(--text-secondary);
+            width: 60px;
+        }
+
+        .last-value {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            padding: 12px 20px;
+            font-size: 24px;
+            font-weight: 700;
+            min-width: 70px;
+            text-align: center;
+        }
+
+        .plan-value {
+            flex: 1;
+            text-align: center;
+            background: var(--bg-secondary);
+            border: 2px solid var(--accent);
+            padding: 12px;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        /* Execute Screen - showing penguin and target */
+        .execute-penguin {
+            width: 150px;
+            height: 180px;
+            margin-bottom: 40px;
+            filter: drop-shadow(0 0 30px rgba(77, 208, 225, 0.4));
+        }
+
+        .execute-target {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 100px;
+            color: var(--accent);
+            margin-bottom: 24px;
+            letter-spacing: 4px;
+        }
+
+        .execute-instruction {
+            font-size: 16px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        /* Actual Entry Screen */
+        .actual-input-section {
+            margin-bottom: 40px;
+        }
+
+        .actual-label {
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .actual-input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .actual-display {
+            flex: 1;
+            text-align: center;
+            background: var(--bg-secondary);
+            border: 3px solid var(--accent);
+            padding: 20px;
+            font-size: 48px;
             font-weight: 800;
             color: var(--accent);
         }
@@ -456,29 +584,76 @@
             </button>
         </div>
 
-        <!-- Workout Screen (for each exercise) -->
-        <div id="workoutScreen" class="workout-screen">
+        <!-- Plan Screen - Enter planned reps for all sets -->
+        <div id="planScreen" class="plan-screen">
             <div class="header">
-                <div class="exercise-title" id="exerciseName"></div>
-                <div class="set-counter" id="setCounter"></div>
+                <div class="exercise-title" id="planExerciseName"></div>
+                <div class="set-counter">Plan Your Sets</div>
             </div>
 
-            <div class="last-workout">
-                <div class="last-workout-title">Last Workout</div>
-                <div class="last-sets" id="lastSets"></div>
+            <div class="plan-sets-container" id="planSetsContainer">
+                <!-- Sets will be dynamically generated here -->
             </div>
 
-            <div class="rep-input-section">
-                <div class="rep-label">Target Reps/Time</div>
-                <div class="rep-input-group">
-                    <button class="btn-adjust" onclick="adjustTarget(-1)">−</button>
-                    <div class="rep-display" id="targetDisplay"></div>
-                    <button class="btn-adjust" onclick="adjustTarget(1)">+</button>
+            <button class="btn-primary" onclick="beginExercise()" style="width: 100%;">
+                <span>BEGIN SETS</span>
+            </button>
+        </div>
+
+        <!-- Execute Screen - Show target and penguin -->
+        <div id="executeScreen" class="execute-screen">
+            <svg class="execute-penguin" viewBox="0 0 200 240">
+                <!-- Penguin body -->
+                <ellipse cx="100" cy="140" rx="60" ry="75" fill="#1a1a1a" stroke="#4dd0e1" stroke-width="3"/>
+                <!-- Left wing (much smaller, to the side, lower) -->
+                <ellipse cx="58" cy="155" rx="5" ry="15" fill="#1a1a1a" stroke="#4dd0e1" stroke-width="1.5"/>
+                <!-- Right wing (much smaller, to the side, lower) -->
+                <ellipse cx="142" cy="155" rx="5" ry="15" fill="#1a1a1a" stroke="#4dd0e1" stroke-width="1.5"/>
+                <!-- Belly -->
+                <ellipse cx="100" cy="145" rx="40" ry="55" fill="#ffffff"/>
+                <!-- Head -->
+                <circle cx="100" cy="70" r="35" fill="#1a1a1a" stroke="#4dd0e1" stroke-width="3"/>
+                <!-- Headband -->
+                <rect x="68" y="55" width="64" height="12" fill="#4dd0e1" rx="2"/>
+                <circle cx="135" cy="61" r="6" fill="#4dd0e1"/>
+                <!-- Left eye -->
+                <ellipse cx="88" cy="68" rx="8" ry="11" fill="#ffffff"/>
+                <circle cx="88" cy="70" r="4" fill="#1a1a1a"/>
+                <!-- Right eye -->
+                <ellipse cx="112" cy="68" rx="8" ry="11" fill="#ffffff"/>
+                <circle cx="112" cy="70" r="4" fill="#1a1a1a"/>
+                <!-- Beak -->
+                <polygon points="100,78 92,85 108,85" fill="#ff9500"/>
+                <!-- Left foot -->
+                <ellipse cx="80" cy="218" rx="15" ry="8" fill="#ff9500"/>
+                <!-- Right foot -->
+                <ellipse cx="120" cy="218" rx="15" ry="8" fill="#ff9500"/>
+                <!-- Sweat drops (workout effort) -->
+                <circle cx="125" cy="55" r="3" fill="#4dd0e1" opacity="0.7"/>
+                <circle cx="132" cy="48" r="2.5" fill="#4dd0e1" opacity="0.6"/>
+            </svg>
+            <div class="execute-target" id="executeTarget"></div>
+            <div class="execute-instruction">TAP TO COMPLETE SET</div>
+        </div>
+
+        <!-- Actual Entry Screen - Enter what you actually did -->
+        <div id="actualScreen" class="actual-screen">
+            <div class="header">
+                <div class="exercise-title" id="actualExerciseName"></div>
+                <div class="set-counter" id="actualSetCounter"></div>
+            </div>
+
+            <div class="actual-input-section">
+                <div class="actual-label">Actual Reps/Time</div>
+                <div class="actual-input-group">
+                    <button class="btn-adjust" onclick="adjustActual(-1)">−</button>
+                    <div class="actual-display" id="actualDisplay"></div>
+                    <button class="btn-adjust" onclick="adjustActual(1)">+</button>
                 </div>
             </div>
 
-            <button class="btn-primary" onclick="completeSet()" style="width: 100%;">
-                <span id="setButtonText">BEGIN SET</span>
+            <button class="btn-primary" onclick="recordActual()" style="width: 100%;">
+                <span>ENTER</span>
             </button>
         </div>
 
@@ -532,12 +707,13 @@
         // State
         let currentExerciseIndex = 0;
         let currentSet = 0;
-        let currentTarget = 0;
-        let currentWorkout = [];
+        let plannedValues = [];
+        let actualValues = [];
+        let currentActualValue = 0;
         let timerInterval = null;
         let remainingTime = 0;
 
-        // Storage functions using window.storage
+        // Storage functions
         async function saveWorkoutData() {
             try {
                 const data = {
@@ -555,7 +731,6 @@
                 const result = await window.storage.get('workout-data', false);
                 if (result && result.value) {
                     const data = JSON.parse(result.value);
-                    // Update EXERCISES with saved data
                     data.exercises.forEach((savedEx, index) => {
                         if (EXERCISES[index]) {
                             EXERCISES[index].lastWorkout = savedEx.lastWorkout;
@@ -563,14 +738,13 @@
                     });
                 }
             } catch (error) {
-                // Key doesn't exist yet or other error - use defaults
                 console.log('No previous workout data found, using defaults');
             }
         }
 
         // Screen management
         function showScreen(screenId) {
-            document.querySelectorAll('.welcome-screen, .workout-screen, .timer-screen, .complete-screen').forEach(screen => {
+            document.querySelectorAll('.welcome-screen, .plan-screen, .execute-screen, .actual-screen, .timer-screen, .complete-screen').forEach(screen => {
                 screen.classList.remove('active');
             });
             document.getElementById(screenId).classList.add('active');
@@ -581,57 +755,108 @@
             await loadWorkoutData();
             currentExerciseIndex = 0;
             currentSet = 0;
-            currentWorkout = EXERCISES.map(ex => []);
-            showExerciseScreen();
+            actualValues = EXERCISES.map(ex => []);
+            showPlanScreen();
         }
 
-        // Show exercise screen
-        function showExerciseScreen() {
+        // Show plan screen - enter planned values for all sets
+        function showPlanScreen() {
             const exercise = EXERCISES[currentExerciseIndex];
             
-            // Update header
-            document.getElementById('exerciseName').textContent = exercise.name;
-            document.getElementById('setCounter').textContent = `Set ${currentSet + 1} of ${exercise.sets}`;
+            document.getElementById('planExerciseName').textContent = exercise.name;
             
-            // Show last workout
-            const lastSetsHtml = exercise.lastWorkout.map(value => {
-                const display = exercise.type === 'time' ? `:${value}` : value;
-                return `<div class="last-set">${display}</div>`;
-            }).join('');
-            document.getElementById('lastSets').innerHTML = lastSetsHtml;
+            // Build the plan entry UI
+            const container = document.getElementById('planSetsContainer');
+            let html = '';
             
-            // Set target (use last workout value or default)
-            currentTarget = exercise.lastWorkout[currentSet] || (exercise.type === 'time' ? 60 : 10);
-            updateTargetDisplay();
+            for (let i = 0; i < exercise.sets; i++) {
+                const lastValue = exercise.lastWorkout[i] || (exercise.type === 'time' ? 60 : 10);
+                const display = exercise.type === 'time' ? `:${lastValue}` : lastValue;
+                
+                html += `
+                    <div class="set-plan-row">
+                        <div class="set-label">Set ${i + 1}</div>
+                        <div class="last-value">${display}</div>
+                        <div class="plan-value" id="planValue${i}">${display}</div>
+                        <button class="btn-adjust" onclick="adjustPlan(${i}, -1)">−</button>
+                        <button class="btn-adjust" onclick="adjustPlan(${i}, 1)">+</button>
+                    </div>
+                `;
+            }
             
-            // Update button text
-            document.getElementById('setButtonText').textContent = 'BEGIN SET';
+            container.innerHTML = html;
             
-            showScreen('workoutScreen');
+            // Initialize planned values
+            plannedValues = exercise.lastWorkout.slice();
+            
+            showScreen('planScreen');
         }
 
-        // Update target display
-        function updateTargetDisplay() {
+        // Adjust planned value for a specific set
+        function adjustPlan(setIndex, delta) {
             const exercise = EXERCISES[currentExerciseIndex];
-            const display = exercise.type === 'time' ? `:${currentTarget}` : currentTarget;
-            document.getElementById('targetDisplay').textContent = display;
+            plannedValues[setIndex] = Math.max(1, (plannedValues[setIndex] || 10) + delta);
+            
+            const display = exercise.type === 'time' ? `:${plannedValues[setIndex]}` : plannedValues[setIndex];
+            document.getElementById(`planValue${setIndex}`).textContent = display;
         }
 
-        // Adjust target
-        function adjustTarget(delta) {
-            const exercise = EXERCISES[currentExerciseIndex];
-            currentTarget = Math.max(1, currentTarget + delta);
-            updateTargetDisplay();
+        // Begin exercise - start first set
+        function beginExercise() {
+            currentSet = 0;
+            showExecuteScreen();
         }
 
-        // Complete set
-        function completeSet() {
+        // Show execute screen - display penguin and target
+        function showExecuteScreen() {
+            const exercise = EXERCISES[currentExerciseIndex];
+            const target = plannedValues[currentSet];
+            const display = exercise.type === 'time' ? `:${target}` : target;
+            
+            document.getElementById('executeTarget').textContent = display;
+            showScreen('executeScreen');
+            
+            // Make the whole screen tappable
+            document.getElementById('executeScreen').onclick = function() {
+                showActualScreen();
+            };
+        }
+
+        // Show actual entry screen
+        function showActualScreen() {
             const exercise = EXERCISES[currentExerciseIndex];
             
-            // Record the actual value
-            currentWorkout[currentExerciseIndex].push(currentTarget);
+            document.getElementById('actualExerciseName').textContent = exercise.name;
+            document.getElementById('actualSetCounter').textContent = `Set ${currentSet + 1} of ${exercise.sets}`;
             
-            // Move to next set or exercise
+            // Default actual value to planned value
+            currentActualValue = plannedValues[currentSet];
+            updateActualDisplay();
+            
+            showScreen('actualScreen');
+        }
+
+        // Update actual display
+        function updateActualDisplay() {
+            const exercise = EXERCISES[currentExerciseIndex];
+            const display = exercise.type === 'time' ? `:${currentActualValue}` : currentActualValue;
+            document.getElementById('actualDisplay').textContent = display;
+        }
+
+        // Adjust actual value
+        function adjustActual(delta) {
+            currentActualValue = Math.max(1, currentActualValue + delta);
+            updateActualDisplay();
+        }
+
+        // Record actual and move to next
+        function recordActual() {
+            const exercise = EXERCISES[currentExerciseIndex];
+            
+            // Save the actual value
+            actualValues[currentExerciseIndex].push(currentActualValue);
+            
+            // Move to next set
             currentSet++;
             
             if (currentSet < exercise.sets) {
@@ -643,8 +868,8 @@
                 currentSet = 0;
                 
                 if (currentExerciseIndex < EXERCISES.length) {
-                    // Start rest before next exercise
-                    startRestTimer();
+                    // Show plan screen for next exercise
+                    showPlanScreen();
                 } else {
                     // Workout complete!
                     completeWorkout();
@@ -679,10 +904,7 @@
         function endRestTimer() {
             clearInterval(timerInterval);
             timerInterval = null;
-            
-            if (currentExerciseIndex < EXERCISES.length) {
-                showExerciseScreen();
-            }
+            showExecuteScreen();
         }
 
         function skipRest() {
@@ -693,7 +915,7 @@
         async function completeWorkout() {
             // Update exercise data with completed workout
             EXERCISES.forEach((exercise, index) => {
-                exercise.lastWorkout = currentWorkout[index];
+                exercise.lastWorkout = actualValues[index];
             });
             
             // Save to storage
@@ -701,7 +923,7 @@
             
             // Show summary
             const summaryHtml = EXERCISES.map((exercise, index) => {
-                const setsHtml = currentWorkout[index].map(value => {
+                const setsHtml = actualValues[index].map(value => {
                     const display = exercise.type === 'time' ? `:${value}` : value;
                     return `<div class="summary-set">${display}</div>`;
                 }).join('');
@@ -725,7 +947,6 @@
 
         // Initialize on load
         window.addEventListener('load', () => {
-            // Prevent iOS bounce scrolling
             document.body.addEventListener('touchmove', function(e) {
                 if (e.target === document.body) {
                     e.preventDefault();
