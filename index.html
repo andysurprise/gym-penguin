@@ -288,10 +288,23 @@
             margin-bottom: 16px;
         }
 
+        .set-plan-row.total-row {
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 2px solid var(--border);
+        }
+
         .set-label {
             font-size: 16px;
             color: var(--text-secondary);
             width: 60px;
+        }
+
+        .set-label.total-label {
+            font-weight: 700;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .last-value {
@@ -304,6 +317,11 @@
             text-align: center;
         }
 
+        .last-value.total-value {
+            border: 2px solid var(--border);
+            font-size: 28px;
+        }
+
         .plan-value {
             flex: 1;
             text-align: center;
@@ -313,6 +331,30 @@
             font-size: 28px;
             font-weight: 800;
             color: var(--accent);
+        }
+
+        .plan-value.total-value {
+            font-size: 32px;
+        }
+
+        .percentage-change {
+            padding: 12px 20px;
+            font-size: 24px;
+            font-weight: 700;
+            min-width: 90px;
+            text-align: center;
+        }
+
+        .percentage-change.positive {
+            color: #4dd0e1;
+        }
+
+        .percentage-change.negative {
+            color: #ff6b6b;
+        }
+
+        .percentage-change.neutral {
+            color: var(--text-secondary);
         }
 
         /* Execute Screen - showing penguin and target */
@@ -765,6 +807,9 @@
             
             document.getElementById('planExerciseName').textContent = exercise.name;
             
+            // Calculate last workout total
+            const lastTotal = exercise.lastWorkout.reduce((sum, val) => sum + val, 0);
+            
             // Build the plan entry UI
             const container = document.getElementById('planSetsContainer');
             let html = '';
@@ -784,6 +829,17 @@
                 `;
             }
             
+            // Add total row
+            const lastTotalDisplay = exercise.type === 'time' ? `:${lastTotal}` : lastTotal;
+            html += `
+                <div class="set-plan-row total-row">
+                    <div class="set-label total-label">Total</div>
+                    <div class="last-value total-value">${lastTotalDisplay}</div>
+                    <div class="plan-value total-value" id="planTotal">${lastTotalDisplay}</div>
+                    <div class="percentage-change neutral" id="percentageChange">0%</div>
+                </div>
+            `;
+            
             container.innerHTML = html;
             
             // Initialize planned values
@@ -799,6 +855,42 @@
             
             const display = exercise.type === 'time' ? `:${plannedValues[setIndex]}` : plannedValues[setIndex];
             document.getElementById(`planValue${setIndex}`).textContent = display;
+            
+            // Update total and percentage
+            updatePlanTotal();
+        }
+
+        // Update total and percentage change
+        function updatePlanTotal() {
+            const exercise = EXERCISES[currentExerciseIndex];
+            
+            // Calculate totals
+            const lastTotal = exercise.lastWorkout.reduce((sum, val) => sum + val, 0);
+            const plannedTotal = plannedValues.reduce((sum, val) => sum + val, 0);
+            
+            // Update total display
+            const totalDisplay = exercise.type === 'time' ? `:${plannedTotal}` : plannedTotal;
+            document.getElementById('planTotal').textContent = totalDisplay;
+            
+            // Calculate percentage change
+            const percentChange = lastTotal > 0 
+                ? Math.round(((plannedTotal - lastTotal) / lastTotal) * 100)
+                : 0;
+            
+            // Update percentage display with color
+            const percentElement = document.getElementById('percentageChange');
+            const sign = percentChange > 0 ? '+' : '';
+            percentElement.textContent = `${sign}${percentChange}%`;
+            
+            // Update color class
+            percentElement.className = 'percentage-change';
+            if (percentChange > 0) {
+                percentElement.classList.add('positive');
+            } else if (percentChange < 0) {
+                percentElement.classList.add('negative');
+            } else {
+                percentElement.classList.add('neutral');
+            }
         }
 
         // Begin exercise - start first set
