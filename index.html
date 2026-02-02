@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Gym Penguin</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #151515;
+            --bg-tertiary: #1f1f1f;
+            --accent: #4dd0e1;
+            --accent-dim: #26c6da;
+            --text-primary: #ffffff;
+            --text-secondary: #888888;
+            --border: #2a2a2a;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 430px;
+            margin: 0 auto;
+            min-height: 100vh;
+            min-height: -webkit-fill-available;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Welcome Screen */
+        .welcome-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            text-align: center;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 72px;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--text-primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 3s ease-in-out infinite;
+        }
+
+        .penguin-graphic {
+            margin-bottom: 32px;
+            filter: drop-shadow(0 0 20px rgba(77, 208, 225, 0.3));
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .tagline {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 80px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border: none;
+            padding: 24px 60px;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 32px;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-weight: 400;
+        }
+
+        .btn-primary:active {
+            transform: scale(0.96);
+            background: var(--accent-dim);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-primary:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        /* Workout Screens */
+        .workout-screen {
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            animation: slideIn 0.4s ease-out;
+        }
+
+        .workout-screen.active {
+            display: flex;
+        }
+
+        .header {
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .exercise-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 48px;
+            letter-spacing: 2px;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .set-counter {
+            font-size: 18px;
+            color: var(--text-secondary);
+            letter-spacing: 1px;
+        }
+
+        /* Last Workout */
+        .last-workout {
+            background: var(--bg-secondary);
+            padding: 24px;
+            margin-bottom: 32px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .last-workout-title {
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .last-sets {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .last-set {
+            background: var(--bg-tertiary);
+            padding: 12px 20px;
+            font-size: 24px;
+            font-weight: 700;
+            border: 1px solid var(--border);
+        }
+
+        /* Rep Input */
+        .rep-input-section {
+            margin-bottom: 32px;
+        }
+
+        .rep-label {
+            font-size: 14px;
+            letter-spacing: 1px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .rep-input-group {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn-adjust {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 2px solid var(--border);
+            width: 56px;
+            height: 56px;
+            font-size: 32px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-adjust:active {
+            background: var(--bg-tertiary);
+            border-color: var(--accent);
+        }
+
+        .rep-display {
+            flex: 1;
+            text-align: center;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            padding: 16px;
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        /* Rest Timer */
+        .timer-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            text-align: center;
+        }
+
+        .timer-screen.active {
+            display: flex;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .timer-label {
+            font-size: 16px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+        }
+
+        .timer-display {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 120px;
+            color: var(--accent);
+            margin-bottom: 60px;
+            letter-spacing: 4px;
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .btn-skip {
+            background: transparent;
+            color: var(--text-secondary);
+            border: 2px solid var(--border);
+            padding: 16px 40px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 16px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .btn-skip:active {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        /* Complete Screen */
+        .complete-screen {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 1;
+            text-align: center;
+        }
+
+        .complete-screen.active {
+            display: flex;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .complete-icon {
+            font-size: 80px;
+            margin-bottom: 24px;
+            animation: scaleIn 0.6s ease-out;
+        }
+
+        .complete-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 56px;
+            letter-spacing: 3px;
+            margin-bottom: 16px;
+            color: var(--accent);
+        }
+
+        .complete-subtitle {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 60px;
+            letter-spacing: 1px;
+        }
+
+        .workout-summary {
+            width: 100%;
+            background: var(--bg-secondary);
+            padding: 24px;
+            margin-bottom: 40px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .summary-exercise {
+            margin-bottom: 20px;
+        }
+
+        .summary-exercise:last-child {
+            margin-bottom: 0;
+        }
+
+        .summary-exercise-name {
+            font-size: 14px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .summary-sets {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .summary-set {
+            background: var(--bg-tertiary);
+            padding: 8px 16px;
+            font-size: 18px;
+            font-weight: 700;
+            border: 1px solid var(--border);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                filter: brightness(1);
+            }
+            50% {
+                filter: brightness(1.2);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.7;
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="welcome-screen active">
+            <svg class="penguin-graphic" viewBox="0 0 200 240" width="200" height="240">
+                <!-- Penguin body -->
+                <ellipse cx="100" cy="140" rx="60" ry="75" fill="#1a1a1a" stroke="#4dd0e1" stroke-width="3"/>
+                <!-- Left wing (much smaller, to the side, lower) -->
+                <ellipse cx="58" cy="155" rx="5" ry="15" fill="#1a1a1a" stroke="#4dd0e1" stroke-width="1.5"/>
+                <!-- Right wing (much smaller, to the side, lower) -->
+                <ellipse cx="142" cy="155" rx="5" ry="15" fill="#1a1a1a" stroke="#4dd0e1" stroke-width="1.5"/>
+                <!-- Belly -->
+                <ellipse cx="100" cy="145" rx="40" ry="55" fill="#ffffff"/>
+                <!-- Head -->
+                <circle cx="100" cy="70" r="35" fill="#1a1a1a" stroke="#4dd0e1" stroke-width="3"/>
+                <!-- Headband -->
+                <rect x="68" y="55" width="64" height="12" fill="#4dd0e1" rx="2"/>
+                <circle cx="135" cy="61" r="6" fill="#4dd0e1"/>
+                <!-- Left eye -->
+                <ellipse cx="88" cy="68" rx="8" ry="11" fill="#ffffff"/>
+                <circle cx="88" cy="70" r="4" fill="#1a1a1a"/>
+                <!-- Right eye -->
+                <ellipse cx="112" cy="68" rx="8" ry="11" fill="#ffffff"/>
+                <circle cx="112" cy="70" r="4" fill="#1a1a1a"/>
+                <!-- Beak -->
+                <polygon points="100,78 92,85 108,85" fill="#ff9500"/>
+                <!-- Left foot -->
+                <ellipse cx="80" cy="218" rx="15" ry="8" fill="#ff9500"/>
+                <!-- Right foot -->
+                <ellipse cx="120" cy="218" rx="15" ry="8" fill="#ff9500"/>
+                <!-- Sweat drops (workout effort) -->
+                <circle cx="125" cy="55" r="3" fill="#4dd0e1" opacity="0.7"/>
+                <circle cx="132" cy="48" r="2.5" fill="#4dd0e1" opacity="0.6"/>
+            </svg>
+            <div class="logo">GYM PENGUIN</div>
+            <div class="tagline">Track Your Gains</div>
+            <button class="btn-primary" onclick="startWorkout()">
+                <span>START WORKOUT</span>
+            </button>
+        </div>
+
+        <!-- Workout Screen (for each exercise) -->
+        <div id="workoutScreen" class="workout-screen">
+            <div class="header">
+                <div class="exercise-title" id="exerciseName"></div>
+                <div class="set-counter" id="setCounter"></div>
+            </div>
+
+            <div class="last-workout">
+                <div class="last-workout-title">Last Workout</div>
+                <div class="last-sets" id="lastSets"></div>
+            </div>
+
+            <div class="rep-input-section">
+                <div class="rep-label">Target Reps/Time</div>
+                <div class="rep-input-group">
+                    <button class="btn-adjust" onclick="adjustTarget(-1)">−</button>
+                    <div class="rep-display" id="targetDisplay"></div>
+                    <button class="btn-adjust" onclick="adjustTarget(1)">+</button>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="completeSet()" style="width: 100%;">
+                <span id="setButtonText">BEGIN SET</span>
+            </button>
+        </div>
+
+        <!-- Rest Timer Screen -->
+        <div id="timerScreen" class="timer-screen">
+            <div class="timer-label">Rest Period</div>
+            <div class="timer-display" id="timerDisplay">1:30</div>
+            <button class="btn-skip" onclick="skipRest()">Skip Rest</button>
+        </div>
+
+        <!-- Complete Screen -->
+        <div id="completeScreen" class="complete-screen">
+            <div class="complete-icon">✓</div>
+            <div class="complete-title">COMPLETE</div>
+            <div class="complete-subtitle">Workout finished. Great work!</div>
+            
+            <div class="workout-summary" id="workoutSummary"></div>
+            
+            <button class="btn-primary" onclick="finishWorkout()">
+                <span>FINISH</span>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Exercise definitions
+        const EXERCISES = [
+            {
+                name: 'CHIN-UPS',
+                type: 'reps',
+                sets: 4,
+                lastWorkout: [10, 8, 6, 8],
+                restTime: 90
+            },
+            {
+                name: 'PUSH-UPS',
+                type: 'reps',
+                sets: 3,
+                lastWorkout: [20, 15, 15],
+                restTime: 90
+            },
+            {
+                name: 'PLANK',
+                type: 'time',
+                sets: 3,
+                lastWorkout: [70, 70, 60],
+                restTime: 90
+            }
+        ];
+
+        // State
+        let currentExerciseIndex = 0;
+        let currentSet = 0;
+        let currentTarget = 0;
+        let currentWorkout = [];
+        let timerInterval = null;
+        let remainingTime = 0;
+
+        // Storage functions using window.storage
+        async function saveWorkoutData() {
+            try {
+                const data = {
+                    exercises: EXERCISES,
+                    lastUpdated: new Date().toISOString()
+                };
+                await window.storage.set('workout-data', JSON.stringify(data), false);
+            } catch (error) {
+                console.error('Error saving workout data:', error);
+            }
+        }
+
+        async function loadWorkoutData() {
+            try {
+                const result = await window.storage.get('workout-data', false);
+                if (result && result.value) {
+                    const data = JSON.parse(result.value);
+                    // Update EXERCISES with saved data
+                    data.exercises.forEach((savedEx, index) => {
+                        if (EXERCISES[index]) {
+                            EXERCISES[index].lastWorkout = savedEx.lastWorkout;
+                        }
+                    });
+                }
+            } catch (error) {
+                // Key doesn't exist yet or other error - use defaults
+                console.log('No previous workout data found, using defaults');
+            }
+        }
+
+        // Screen management
+        function showScreen(screenId) {
+            document.querySelectorAll('.welcome-screen, .workout-screen, .timer-screen, .complete-screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        // Start workout
+        async function startWorkout() {
+            await loadWorkoutData();
+            currentExerciseIndex = 0;
+            currentSet = 0;
+            currentWorkout = EXERCISES.map(ex => []);
+            showExerciseScreen();
+        }
+
+        // Show exercise screen
+        function showExerciseScreen() {
+            const exercise = EXERCISES[currentExerciseIndex];
+            
+            // Update header
+            document.getElementById('exerciseName').textContent = exercise.name;
+            document.getElementById('setCounter').textContent = `Set ${currentSet + 1} of ${exercise.sets}`;
+            
+            // Show last workout
+            const lastSetsHtml = exercise.lastWorkout.map(value => {
+                const display = exercise.type === 'time' ? `:${value}` : value;
+                return `<div class="last-set">${display}</div>`;
+            }).join('');
+            document.getElementById('lastSets').innerHTML = lastSetsHtml;
+            
+            // Set target (use last workout value or default)
+            currentTarget = exercise.lastWorkout[currentSet] || (exercise.type === 'time' ? 60 : 10);
+            updateTargetDisplay();
+            
+            // Update button text
+            document.getElementById('setButtonText').textContent = 'BEGIN SET';
+            
+            showScreen('workoutScreen');
+        }
+
+        // Update target display
+        function updateTargetDisplay() {
+            const exercise = EXERCISES[currentExerciseIndex];
+            const display = exercise.type === 'time' ? `:${currentTarget}` : currentTarget;
+            document.getElementById('targetDisplay').textContent = display;
+        }
+
+        // Adjust target
+        function adjustTarget(delta) {
+            const exercise = EXERCISES[currentExerciseIndex];
+            currentTarget = Math.max(1, currentTarget + delta);
+            updateTargetDisplay();
+        }
+
+        // Complete set
+        function completeSet() {
+            const exercise = EXERCISES[currentExerciseIndex];
+            
+            // Record the actual value
+            currentWorkout[currentExerciseIndex].push(currentTarget);
+            
+            // Move to next set or exercise
+            currentSet++;
+            
+            if (currentSet < exercise.sets) {
+                // More sets in this exercise - start rest timer
+                startRestTimer();
+            } else {
+                // Exercise complete - move to next exercise
+                currentExerciseIndex++;
+                currentSet = 0;
+                
+                if (currentExerciseIndex < EXERCISES.length) {
+                    // Start rest before next exercise
+                    startRestTimer();
+                } else {
+                    // Workout complete!
+                    completeWorkout();
+                }
+            }
+        }
+
+        // Rest timer
+        function startRestTimer() {
+            const exercise = EXERCISES[currentExerciseIndex];
+            remainingTime = exercise.restTime;
+            updateTimerDisplay();
+            showScreen('timerScreen');
+            
+            timerInterval = setInterval(() => {
+                remainingTime--;
+                updateTimerDisplay();
+                
+                if (remainingTime <= 0) {
+                    endRestTimer();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            document.getElementById('timerDisplay').textContent = 
+                `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function endRestTimer() {
+            clearInterval(timerInterval);
+            timerInterval = null;
+            
+            if (currentExerciseIndex < EXERCISES.length) {
+                showExerciseScreen();
+            }
+        }
+
+        function skipRest() {
+            endRestTimer();
+        }
+
+        // Complete workout
+        async function completeWorkout() {
+            // Update exercise data with completed workout
+            EXERCISES.forEach((exercise, index) => {
+                exercise.lastWorkout = currentWorkout[index];
+            });
+            
+            // Save to storage
+            await saveWorkoutData();
+            
+            // Show summary
+            const summaryHtml = EXERCISES.map((exercise, index) => {
+                const setsHtml = currentWorkout[index].map(value => {
+                    const display = exercise.type === 'time' ? `:${value}` : value;
+                    return `<div class="summary-set">${display}</div>`;
+                }).join('');
+                
+                return `
+                    <div class="summary-exercise">
+                        <div class="summary-exercise-name">${exercise.name}</div>
+                        <div class="summary-sets">${setsHtml}</div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('workoutSummary').innerHTML = summaryHtml;
+            showScreen('completeScreen');
+        }
+
+        // Finish and return to welcome
+        function finishWorkout() {
+            showScreen('welcomeScreen');
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            // Prevent iOS bounce scrolling
+            document.body.addEventListener('touchmove', function(e) {
+                if (e.target === document.body) {
+                    e.preventDefault();
+                }
+            }, { passive: false });
+        });
+    </script>
+</body>
+</html>
