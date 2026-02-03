@@ -620,10 +620,7 @@
                 <circle cx="132" cy="48" r="2.5" fill="#4dd0e1" opacity="0.6"/>
             </svg>
             <div class="logo">GYM PENGUIN</div>
-            <div class="tagline">Track Your Gains</div>
-            <button class="btn-primary" onclick="startWorkout()">
-                <span>START WORKOUT</span>
-            </button>
+            <div class="tagline">Loading...</div>
         </div>
 
         <!-- Plan Screen - Enter planned reps for all sets -->
@@ -637,13 +634,14 @@
                 <!-- Sets will be dynamically generated here -->
             </div>
 
-            <button class="btn-primary" onclick="beginExercise()" style="width: 100%;">
+            <button class="btn-primary" onclick="beginExercise()" style="width: 100%;" aria-label="Begin exercise sets">
                 <span>BEGIN SETS</span>
             </button>
         </div>
 
         <!-- Execute Screen - Show target and penguin -->
-        <div id="executeScreen" class="execute-screen">
+        <div id="executeScreen" class="execute-screen" role="button" tabindex="0" aria-label="Tap to complete set">
+            <svg class="execute-penguin" viewBox="0 0 200 240" aria-hidden="true">
             <svg class="execute-penguin" viewBox="0 0 200 240">
                 <!-- Penguin body -->
                 <ellipse cx="100" cy="140" rx="60" ry="75" fill="#1a1a1a" stroke="#4dd0e1" stroke-width="3"/>
@@ -688,13 +686,13 @@
             <div class="actual-input-section">
                 <div class="actual-label">Actual Reps/Time</div>
                 <div class="actual-input-group">
-                    <button class="btn-adjust" onclick="adjustActual(-1)">−</button>
-                    <div class="actual-display" id="actualDisplay"></div>
-                    <button class="btn-adjust" onclick="adjustActual(1)">+</button>
+                    <button class="btn-adjust" onclick="adjustActual(-1)" aria-label="Decrease actual value">−</button>
+                    <div class="actual-display" id="actualDisplay" role="status" aria-live="polite"></div>
+                    <button class="btn-adjust" onclick="adjustActual(1)" aria-label="Increase actual value">+</button>
                 </div>
             </div>
 
-            <button class="btn-primary" onclick="recordActual()" style="width: 100%;">
+            <button class="btn-primary" onclick="recordActual()" style="width: 100%;" aria-label="Record actual value and continue">
                 <span>ENTER</span>
             </button>
         </div>
@@ -702,8 +700,8 @@
         <!-- Rest Timer Screen -->
         <div id="timerScreen" class="timer-screen">
             <div class="timer-label">Rest Period</div>
-            <div class="timer-display" id="timerDisplay">1:30</div>
-            <button class="btn-skip" onclick="skipRest()">Skip Rest</button>
+            <div class="timer-display" id="timerDisplay" aria-live="polite" aria-atomic="true">1:30</div>
+            <button class="btn-skip" onclick="skipRest()" aria-label="Skip rest period">Skip Rest</button>
         </div>
 
         <!-- Complete Screen -->
@@ -714,13 +712,43 @@
             
             <div class="workout-summary" id="workoutSummary"></div>
             
-            <button class="btn-primary" onclick="finishWorkout()">
+            <button class="btn-primary" onclick="finishWorkout()" aria-label="Finish workout and return to start">
                 <span>FINISH</span>
             </button>
         </div>
     </div>
 
     <script>
+        // Storage abstraction with fallback
+        const storage = {
+            async set(key, value) {
+                try {
+                    if (window.storage && typeof window.storage.set === 'function') {
+                        return await window.storage.set(key, value, false);
+                    }
+                    // Fallback to localStorage
+                    localStorage.setItem(key, value);
+                    return { success: true };
+                } catch (e) {
+                    console.warn('Storage set failed:', e);
+                    return { success: false };
+                }
+            },
+            async get(key) {
+                try {
+                    if (window.storage && typeof window.storage.get === 'function') {
+                        return await window.storage.get(key, false);
+                    }
+                    // Fallback to localStorage
+                    const value = localStorage.getItem(key);
+                    return value ? { value } : null;
+                } catch (e) {
+                    console.warn('Storage get failed:', e);
+                    return null;
+                }
+            }
+        };
+
         // Exercise definitions
         const EXERCISES = [
             {
@@ -762,7 +790,7 @@
                     exercises: EXERCISES,
                     lastUpdated: new Date().toISOString()
                 };
-                await window.storage.set('workout-data', JSON.stringify(data), false);
+                await storage.set('workout-data', JSON.stringify(data));
             } catch (error) {
                 console.error('Error saving workout data:', error);
             }
@@ -770,7 +798,7 @@
 
         async function loadWorkoutData() {
             try {
-                const result = await window.storage.get('workout-data', false);
+                const result = await storage.get('workout-data');
                 if (result && result.value) {
                     const data = JSON.parse(result.value);
                     data.exercises.forEach((savedEx, index) => {
@@ -823,8 +851,8 @@
                         <div class="set-label">Set ${i + 1}</div>
                         <div class="last-value">${display}</div>
                         <div class="plan-value" id="planValue${i}">${display}</div>
-                        <button class="btn-adjust" onclick="adjustPlan(${i}, -1)">−</button>
-                        <button class="btn-adjust" onclick="adjustPlan(${i}, 1)">+</button>
+                        <button class="btn-adjust" onclick="adjustPlan(${i}, -1)" aria-label="Decrease set ${i + 1} target">−</button>
+                        <button class="btn-adjust" onclick="adjustPlan(${i}, 1)" aria-label="Increase set ${i + 1} target">+</button>
                     </div>
                 `;
             }
@@ -908,10 +936,23 @@
             document.getElementById('executeTarget').textContent = display;
             showScreen('executeScreen');
             
+            const executeScreen = document.getElementById('executeScreen');
+            
             // Make the whole screen tappable
-            document.getElementById('executeScreen').onclick = function() {
+            executeScreen.onclick = function() {
                 showActualScreen();
             };
+            
+            // Add keyboard support
+            executeScreen.onkeydown = function(e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    showActualScreen();
+                }
+            };
+            
+            // Focus the screen for keyboard accessibility
+            executeScreen.focus();
         }
 
         // Show actual entry screen
@@ -1038,12 +1079,19 @@
         }
 
         // Initialize on load
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async () => {
             document.body.addEventListener('touchmove', function(e) {
                 if (e.target === document.body) {
                     e.preventDefault();
                 }
             }, { passive: false });
+            
+            // Auto-start workout after loading data
+            await loadWorkoutData();
+            currentExerciseIndex = 0;
+            currentSet = 0;
+            actualValues = EXERCISES.map(ex => []);
+            showPlanScreen();
         });
     </script>
 </body>
